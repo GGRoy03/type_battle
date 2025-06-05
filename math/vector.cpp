@@ -1,32 +1,20 @@
 // TODO: Look into inverse square roots instead of sqrt
 // TODO: Look into forcing SIMD depending on the CPU 
 
-typedef struct vec4
+struct vec4
 {
-    union 
-    {
-        struct {f32 x, y, z, w;};
-        f32 AsArray[4];
-    };
-} vec4;
+    f32 x, y, z, w;
+};
 
-typedef struct vec3
+struct vec3
 {
-    union 
-    {
-        struct {f32 x, y, z;};
-        f32 AsArray[3];
-    };
-} vec3;
+    f32 x, y, z;
+};
 
-typedef struct vec2
+struct vec2
 {
-    union 
-    {
-        struct {f32 x, y;};
-        f32 AsArray[2];
-    };
-} vec2;
+    f32 x, y;
+};
 
 // ========================================
 // [INITIALIZERS]

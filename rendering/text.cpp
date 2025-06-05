@@ -32,7 +32,7 @@ bool IsLetter(u8 c)
 }
 
 internal bool
-LineStartsWith(u8* Line, char* Pattern)
+LineStartsWith(u8* Line, const char* Pattern)
 {
     while (*Pattern)
     {
@@ -43,7 +43,7 @@ LineStartsWith(u8* Line, char* Pattern)
 }
 
 internal text_map 
-LoadTextMap(char *Path, platform_context *Platform, transient_allocator *Allocator)
+LoadTextMap(const char *Path, platform_context *Platform, transient_allocator *Allocator)
 {
     text_map             Result     = {0};
     platform_read_result FileBuffer = Platform->ReadFile(Path, Allocator);
@@ -62,7 +62,7 @@ LoadTextMap(char *Path, platform_context *Platform, transient_allocator *Allocat
         else if (LineStartsWith(LineStart, "chars"))
         {
             sscanf_s((const char*)LineStart, "chars count=%u", &Result.GlyphCount);
-            Result.Glyphs = AllocateTransient(Allocator, Result.GlyphCount * sizeof(glyph));
+            Result.Glyphs = (glyph*)AllocateTransient(Allocator, Result.GlyphCount * sizeof(glyph));
         }
         else if(LineStartsWith(LineStart, "char"))
         {

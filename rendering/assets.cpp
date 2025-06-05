@@ -39,20 +39,13 @@ typedef struct
     f32 Emissive[3];
 } master_material;
 
-internal size_t
-GetMaterialSize(LIGHTNING_TYPE Type)
-{
-    switch(Type)
-    {
-        case LIGHTNING_COLOR_AMBIENT: return sizeof(material_color_ambient);
-    }
-}
-
 internal u32
 LoadStaticMeshFromDisk(char* RelativeDirectory,
                        platform_context* Platform,
                        transient_allocator* Allocator)
 {
+    if(!RelativeDirectory) return 0;
+
     char Directory[MAX_PATH] = {};
     snprintf(Directory, MAX_PATH, "%s/assets/%s", Platform->Root, RelativeDirectory);
 

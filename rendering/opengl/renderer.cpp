@@ -58,7 +58,7 @@ typedef struct
 #define STB_IMAGE_IMPLEMENTATION
 #include "rendering/third_party/stb_image.h"
 
-#include "rendering/text.c"
+#include "rendering/text.cpp"
 
 #define MAXIMUM_COMMAND 1024
 typedef struct
@@ -71,12 +71,12 @@ typedef struct
 } frame_context;
 
 
-#include "rendering/geometry/tri_mesh.c"
-#include "setup.c"
-#include "resources.c"
-#include "commands.c"
-#include "rendering/assets.c"
-#include "rendering/camera.c"
+#include "rendering/geometry/tri_mesh.cpp"
+#include "setup.cpp"
+#include "resources.cpp"
+#include "commands.cpp"
+#include "rendering/assets.cpp"
+#include "rendering/camera.cpp"
 
 internal inline void 
 BeginFrame(camera *Camera, frame_context *FrameContext, platform_context *Platform,
@@ -103,13 +103,13 @@ BeginFrame(camera *Camera, frame_context *FrameContext, platform_context *Platfo
 
     if (!FrameContext->TextMap.Initialized)
     {
-        FrameContext->TextMap = LoadTextMap("D:/Work/sim/misc/test_font.fnt", Platform,
+        FrameContext->TextMap = LoadTextMap("D:/Work/type_battle/misc/test_font.fnt", Platform,
                                             Allocator);
 
         if (FrameContext->TextMap.Loaded)
         {
             i32 TexWidth, TexHeight, Channels;
-            u8 *Pixels = stbi_load("D:/Work/sim/misc/test_font_0.png", &TexWidth, &TexHeight, &Channels, 4);
+            u8 *Pixels = stbi_load("D:/Work/type_battle/misc/test_font_0.png", &TexWidth, &TexHeight, &Channels, 4);
             if (!Pixels)
             {
                 FatalError("FAILED TO LOAD FONT TEXTURE.");
@@ -140,7 +140,7 @@ BeginFrame(camera *Camera, frame_context *FrameContext, platform_context *Platfo
 
     if (!FrameContext->Commands)
     {
-        FrameContext->Commands = AllocateTransient(Allocator, MAXIMUM_COMMAND * sizeof(draw_command));
+        FrameContext->Commands = (draw_command*)AllocateTransient(Allocator, MAXIMUM_COMMAND * sizeof(draw_command));
     }
 }
 
@@ -150,7 +150,7 @@ EndFrame(void* DeviceContext, frame_context *Frame)
     // NOTE: This should be different, but the logic is there.
     ExecuteDrawCommands(Frame);
 
-    if(!SwapBuffers(DeviceContext))
+    if(!SwapBuffers((HDC)DeviceContext))
     {
         FatalError("Failed to swap OpenGL buffers!");
     }

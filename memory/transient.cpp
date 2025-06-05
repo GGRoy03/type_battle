@@ -157,37 +157,3 @@ FreeTransient(transient_allocator* Allocator, void* Pointer, size_t Size)
     Block->Next                = Allocator->FreeList[Order];
     Allocator->FreeList[Order] = Block;
 }
-
-static transient_stack
-AllocateTransientStack(transient_allocator* Allocator, size_t StackSize)
-{
-    transient_stack Stack = {0};
-    Stack.Memory          = AllocateTransient(Allocator, StackSize);
-    Stack.At              = 0;
-    Stack.Capacity        = StackSize;
-
-    return Stack;
-}
-
-internal u8*
-PushToTransientStack(transient_stack* Stack, size_t Size)
-{
-    if (Stack->At + Size > Stack->Capacity)  
-    {
-        // TODO: The normal re-alloc routine.
-        return NULL;
-    }
-
-    uint8_t* Result = Stack->Memory + Stack->At;
-    Stack->At      += Size;
-    Stack->Size    += 1;
-
-    return Result;
-}
-
-internal inline u8* 
-IndexInTransientStack(transient_stack* Stack, size_t SizeOfElements, u32 Index)
-{
-    u8* At = Stack->Memory + (Index * SizeOfElements);
-    return At;
-}

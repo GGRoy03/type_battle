@@ -1,20 +1,24 @@
 // TODO: Profile this code and optimize it.
-
-// BUG: Some part of this code is wrong, nice.
+//
+#pragma warning(push)
+#pragma warning(disable: 4201)
 
 typedef struct mat4 
 {
-    union 
+    union
     {
         struct { vec4 c0,c1,c2,c3; };
         f32 AsArray[16];
     };
+
 } mat4;
+
+#pragma warning(pop)
 
 internal inline mat4
 Mat4_FromColumns(vec4 C0, vec4 C1, vec4 C2, vec4 C3)
 {
-    return (mat4){ .c0 = C0, .c1 = C1, .c2 = C2, .c3 = C3 };
+    return { .c0 = C0, .c1 = C1, .c2 = C2, .c3 = C3 };
 }
 
 internal inline mat4
@@ -24,7 +28,7 @@ Mat4_InversePerspective(f32 FieldOfView, f32 AspectRatio, f32 Near, f32 Far)
     f32 TwoNearFar = 2.0f * Near * Far;
     f32 InvScale   = tanf(FovRad / 2.0f);
 
-    return (mat4){ .AsArray = {
+    return { .AsArray = {
         AspectRatio * InvScale, 0.0f    , 0.0f, 0.0f,
         0.0f                  , InvScale, 0.0f, 0.0f,
         0.0f                  , 0.0f    , 0.0f, (Far - Near) / TwoNearFar,
@@ -38,7 +42,7 @@ Mat4_Perspective(f32 FieldOfView, f32 AspectRatio, f32 Near, f32 Far)
     f32 FovRad = FieldOfView * (3.14159265358979323846f / 180.0f);
     f32 Focal  = tanf(FovRad / 2.0f);
 
-    return (mat4){ .AsArray = {
+    return { .AsArray = {
         1.0f/(AspectRatio*Focal), 0.0       , 0.0f                     , 0.0f,
         0.0f                    , 1.0f/Focal, 0.0f                     , 0.0f,
         0.0f                    , 0.0       , -(Far+Near)/(Far-Near)   , -1.0f,
@@ -49,7 +53,7 @@ Mat4_Perspective(f32 FieldOfView, f32 AspectRatio, f32 Near, f32 Far)
 internal inline mat4
 Mat4_InitIdentity()
 {
-    return (mat4){ .AsArray = {
+    return { .AsArray = {
         1.0f,    0.0f, 0.0f, 0.0f,
         0.0f, 1.0f,    0.0f, 0.0f,
         0.0f, 0.0f, 1.0f,    0.0f,
@@ -60,7 +64,7 @@ Mat4_InitIdentity()
 internal inline mat4
 Mat4_Scale(f32 ScaleX, f32 ScaleY, f32 ScaleZ)
 {
-    return (mat4){ .AsArray = {
+    return { .AsArray = {
         ScaleX, 0.0f,   0.0f,   0.0f,
         0.0f,   ScaleY, 0.0f,   0.0f,
         0.0f,   0.0f,   ScaleZ, 0.0f,
@@ -71,7 +75,7 @@ Mat4_Scale(f32 ScaleX, f32 ScaleY, f32 ScaleZ)
 internal inline mat4
 Mat4_Translate(vec3 Translation)
 {
-    mat4 M = Mat4_InitIdentity(1.0f);
+    mat4 M = Mat4_InitIdentity();
     M.AsArray[12] = Translation.x;
     M.AsArray[13] = Translation.y;
     M.AsArray[14] = Translation.z;
@@ -118,14 +122,14 @@ Mat4_FocusMatrix(vec3 Up, vec3 CamPos, vec3 Focus)
     vec3 Right   = Vec3_Normalize(Vec3_VectorProduct(Forward, Up));  // FIXED: swapped order
     vec3 UpVec   = Vec3_VectorProduct(Right, Forward);  // FIXED: swapped order
 
-    mat4 R = (mat4){ .AsArray = {
+    mat4 R = { .AsArray = {
         Right.x,  UpVec.x,  -Forward.x, 0.0f,  // FIXED: negated Forward
         Right.y,  UpVec.y,  -Forward.y, 0.0f,  // FIXED: negated Forward
         Right.z,  UpVec.z,  -Forward.z, 0.0f,  // FIXED: negated Forward
         0.0f,     0.0f,     0.0f,       1.0f
     }};
 
-    mat4 T = Mat4_Translate((vec3){ -CamPos.x, -CamPos.y, -CamPos.z });
+    mat4 T = Mat4_Translate({ -CamPos.x, -CamPos.y, -CamPos.z });
     return Mat4_Multiply(R, T);
 }
 
@@ -141,7 +145,7 @@ Mat4_InverseFocusMatrix(mat4 FocusMatrix)
     f32 iTy = -Vec3_Dot(r1, T);
     f32 iTz = -Vec3_Dot(r2, T);
 
-    return (mat4){ .AsArray = {
+    return { .AsArray = {
         r0.x, r1.x, r2.x, 0.0f,
         r0.y, r1.y, r2.y, 0.0f,
         r0.z, r1.z, r2.z, 0.0f,

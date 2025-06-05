@@ -29,11 +29,11 @@ typedef struct
 
 typedef struct transient_allocator transient_allocator;
 
-typedef platform_read_result PlatformReadFile   (char *Path, transient_allocator *Memory);
+typedef platform_read_result PlatformReadFile   (const char *Path, transient_allocator *Memory);
 typedef bool                 PlatformWriteFile  (char *Path, void* Data, size_t Size);
 typedef bool                 PlatformDeleteFile (char *Path);
 
-typedef void                 PlatformListDirectoryFiles    (char* Directory, char* Extension, transient_allocator* Allocator,
+typedef void                 PlatformListDirectoryFiles    (char* Directory, const char* Extension, transient_allocator* Allocator,
                                                             char** OutList, u32* OutCount);
 typedef void                 PlatformFreeFileList          (char* List, u32 Count, transient_allocator* Allocator);
 
