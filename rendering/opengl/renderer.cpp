@@ -74,7 +74,6 @@ typedef struct
 #include "rendering/geometry/tri_mesh.cpp"
 #include "setup.cpp"
 #include "resources.cpp"
-#include "commands.cpp"
 #include "rendering/assets.cpp"
 #include "rendering/camera.cpp"
 
@@ -90,22 +89,19 @@ BeginFrame(camera *Camera, frame_context *FrameContext, platform_context *Platfo
     if(FrameContext->CameraBuffer == 0)
     {
         glCreateBuffers(1, &FrameContext->CameraBuffer);
-
         glNamedBufferStorage(FrameContext->CameraBuffer, sizeof(mat4),
                              NULL, GL_DYNAMIC_STORAGE_BIT);
-        glObjectLabel(GL_BUFFER, FrameContext->CameraBuffer, -1, "CameraBuffer");
     }
 
     mat4 ViewProj = Mat4_Multiply(Camera->CameraToClip, Camera->WorldToCamera);
     glNamedBufferSubData(FrameContext->CameraBuffer, 0, sizeof(mat4),
                          ViewProj.AsArray);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, FrameContext->CameraBuffer); // WARN: Do we have to bind this every frame?
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, FrameContext->CameraBuffer);
 
     if (!FrameContext->TextMap.Initialized)
     {
-        FrameContext->TextMap = LoadTextMap("D:/Work/type_battle/misc/test_font.fnt", Platform,
-                                            Allocator);
-
+        FrameContext->TextMap = LoadTextMap("D:/Work/type_battle/misc/test_font.fnt",
+                                            Platform, Allocator);
         if (FrameContext->TextMap.Loaded)
         {
             i32 TexWidth, TexHeight, Channels;
@@ -140,16 +136,20 @@ BeginFrame(camera *Camera, frame_context *FrameContext, platform_context *Platfo
 
     if (!FrameContext->Commands)
     {
-        FrameContext->Commands = (draw_command*)AllocateTransient(Allocator, MAXIMUM_COMMAND * sizeof(draw_command));
+        FrameContext->Commands = (draw_command*)
+            AllocateTransient(Allocator, MAXIMUM_COMMAND * sizeof(draw_command));
     }
 }
 
-internal inline void
-EndFrame(void* DeviceContext, frame_context *Frame)
+internal void
+RenderGame(frame_context *Context)
 {
-    // NOTE: This should be different, but the logic is there.
-    ExecuteDrawCommands(Frame);
+    UNUSED(Context);
+}
 
+internal inline void
+EndFrame(void* DeviceContext)
+{
     if(!SwapBuffers((HDC)DeviceContext))
     {
         FatalError("Failed to swap OpenGL buffers!");

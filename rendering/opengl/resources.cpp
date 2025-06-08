@@ -24,38 +24,9 @@ const char* FShaderText =
 "\n"
 "void main() {                                  \n"
 "    float alpha = texture(uFont, vUV).r;       \n"
-"    fragColor   = vec4(1.0, 1.0, 1.0, alpha);   \n"
+"    fragColor   = vec4(1.0, 1.0, 1.0, alpha);  \n"
 "    if (alpha < 0.1) discard;                  \n"
-"}                                              \n"
-;
-
-
-
-internal GLuint
-CreateTextPipeline(void)
-{
-    GLuint VShader = glCreateShaderProgramv(GL_VERTEX_SHADER  , 1, &VShaderText);
-    GLuint FShader = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, &FShaderText);
-
-    GLint ok;
-    glGetProgramiv(VShader, GL_LINK_STATUS, &ok);
-    if (!ok) {
-        char msg[1024]; glGetProgramInfoLog(VShader, sizeof(msg), NULL, msg);
-        PrintDebug(msg); Assert(!"Vertex shader link failed");
-    }
-    glGetProgramiv(FShader, GL_LINK_STATUS, &ok);
-    if (!ok) {
-        char msg[1024]; glGetProgramInfoLog(FShader, sizeof(msg), NULL, msg);
-        PrintDebug(msg); Assert(!"Fragment shader link failed");
-    }
-
-    GLuint Pipeline;
-    glGenProgramPipelines(1, &Pipeline);
-    glUseProgramStages(Pipeline, GL_VERTEX_SHADER_BIT  , VShader);
-    glUseProgramStages(Pipeline, GL_FRAGMENT_SHADER_BIT, FShader);
-
-    return Pipeline;
-}
+"}                                              \n" ;
 
 #define STATIC_MESH_MAX 256
 global static_tri_mesh StaticMeshPool[STATIC_MESH_MAX];
@@ -100,7 +71,6 @@ typedef struct
     f32 _Padding0;      // offset  8
     f32 _Padding1;      // offset 12
 } material_color_ambient_specular;
-
 
 #define MAX_MATERIAL       1024
 #define MATERIAL_BIND_SLOT 1 // Move this.

@@ -187,11 +187,15 @@ void PrintDebug(const char* Message)
     OutputDebugStringA(Message);
 }
 
-// C Files
+// CPP Files
 #include "math/sim_math.cpp"
 #include "memory/transient.cpp"
 #include "rendering/opengl/renderer.cpp"
 #include "game/update.cpp"
+
+// Renderer before jani.cpp
+#include "backend/renderers/opengl/jani_opengl.cpp"
+#include "jani.cpp"
 
 #ifndef NDEBUG
 static void APIENTRY DebugCallback(
