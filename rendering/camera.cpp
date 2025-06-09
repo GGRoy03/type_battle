@@ -15,8 +15,7 @@ typedef struct
 } camera;
 
 internal void
-UpdateCamera(camera *Camera, game_controller_input *Input,
-             platform_context *Platform, f32 DeltaTime)
+UpdateCamera(camera *Camera, platform_context *Platform)
 {
     if (!Camera->Initialized)
     {
@@ -45,42 +44,4 @@ UpdateCamera(camera *Camera, game_controller_input *Input,
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LEQUAL);*/
     }
-
-    f32  CameraSpeed   = 10.0f;
-    vec3 MovementDelta = {0};
-
-    if(Input->Actions.CameraForward.EndedDown)
-    {
-        MovementDelta = Vec3_Scale(Camera->Forward, CameraSpeed * DeltaTime);
-    }
-    if(Input->Actions.CameraBackward.EndedDown)
-    {
-        MovementDelta = Vec3_Add(MovementDelta, Vec3_Scale(Camera->Forward,
-                                                           -CameraSpeed * DeltaTime));
-    }
-    if(Input->Actions.CameraRight.EndedDown)
-    {
-        MovementDelta = Vec3_Add(MovementDelta, Vec3_Scale(Camera->Right,
-                                                           CameraSpeed * DeltaTime));
-    }
-    if(Input->Actions.CameraLeft.EndedDown)
-    {
-        MovementDelta = Vec3_Add(MovementDelta, Vec3_Scale(Camera->Right,
-                                                           -CameraSpeed * DeltaTime));
-    }
-    if(Input->Actions.CameraUp.EndedDown)
-    {
-        MovementDelta = Vec3_Add(MovementDelta, Vec3_Scale(Camera->Up,
-                                                           CameraSpeed * DeltaTime));
-    }
-    if(Input->Actions.CameraDown.EndedDown)
-    {
-        MovementDelta = Vec3_Add(MovementDelta, Vec3_Scale(Camera->Up,
-                                                           -CameraSpeed * DeltaTime));
-    }
-
-    Camera->Position = Vec3_Add(Camera->Position, MovementDelta);
-
-    vec3 Target           = Vec3_Add(Camera->Position, Camera->Forward);
-    Camera->WorldToCamera = Mat4_FocusMatrix(Camera->Up, Camera->Position, Target);
 }

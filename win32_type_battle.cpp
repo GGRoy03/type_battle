@@ -234,77 +234,71 @@ static LRESULT CALLBACK WindowProc(HWND wnd, UINT msg, WPARAM wparam, LPARAM lpa
 
 // ===================
 
-internal void
-Win32ProcessKeyboardMessage(game_button_state *NewState, bool IsDown)
+internal inline void
+Win32AddKeyboardEvent(game_controller_input *Keyboard, u8 Character)
 {
-    if(NewState->EndedDown != IsDown)
+    Keyboard->CharBuffer[Keyboard->EventHead] = { Character };
+    Keyboard->EventHead = MOVE_INPUT_HEAD_TO_NEXT(Keyboard);
+
+    if (Keyboard->EventHead == Keyboard->EventTail)
     {
-        NewState->EndedDown = IsDown;
-        ++NewState->HalfTransitionCount;
+        Keyboard->EventTail = (Keyboard->EventTail + 1) % KEYBOARD_EVENT_BUFFER_COUNT;
     }
+
+    ++Keyboard->RecordedCharacters;
 }
 
+//internal void
+//Win32ProcessKeyboardMessage(game_button_state *NewState, bool IsDown)
+//{
+//    if(NewState->EndedDown != IsDown)
+//    {
+//        NewState->EndedDown = IsDown;
+//        ++NewState->HalfTransitionCount;
+//    }
+//}
+
 internal bool
-Win32ProcessMessages(game_controller_input *Keyboard)
+Win32ProcessMessages(game_controller_input *Keyboard, game_controller_input2 *Kbd)
 {
+    UNUSED(Kbd);
+
     MSG Message;
-    while(PeekMessage(&Message, 0, 0, 0, PM_REMOVE))
+    while (PeekMessage(&Message, 0, 0, 0, PM_REMOVE))
     {
-        switch(Message.message)
+        switch (Message.message)
         {
-        case WM_KEYDOWN:
-        case WM_KEYUP:
-        case WM_SYSKEYDOWN:
-        case WM_SYSKEYUP:
-        {
-            u32  VKCode  = (u32)Message.wParam;
-            bool WasDown = ((Message.lParam & (1 << 30)) != 0);
-            bool IsDown  = ((Message.lParam & (1 << 31)) == 0);
-
-            if(WasDown != IsDown)
+            case WM_CHAR:
             {
+                char Character = (char)Message.wParam;
+                Win32AddKeyboardEvent(Keyboard, Character);
+            } break;
 
-                if(VKCode == 'W')
-                {
-                    Win32ProcessKeyboardMessage(&Keyboard->Actions.CameraForward,
-                                                IsDown);
-                }
-                else if(VKCode == 'A')
-                {
-                    Win32ProcessKeyboardMessage(&Keyboard->Actions.CameraLeft, IsDown);
-                }
-                else if(VKCode == 'S')
-                {
-                    Win32ProcessKeyboardMessage(&Keyboard->Actions.CameraBackward,
-                                                IsDown);
-                }
-                else if(VKCode == 'D')
-                {
-                    Win32ProcessKeyboardMessage(&Keyboard->Actions.CameraRight, 
-                                                IsDown);
-                }
-                else if(VKCode == 'R')
-                {
-                    Win32ProcessKeyboardMessage(&Keyboard->Actions.CameraUp, IsDown);
-                }
-                else if(VKCode == 'F')
-                {
-                    Win32ProcessKeyboardMessage(&Keyboard->Actions.CameraDown, IsDown);
-                }
-            }
-        } break;
+            default:
+            {
+                TranslateMessage(&Message);
+                DispatchMessageA(&Message);
+            } break;
 
-        case WM_QUIT:
-        {
-            return false;
-        } break;
+            /*case WM_KEYDOWN:
+            case WM_KEYUP:
+            case WM_SYSKEYDOWN:
+            case WM_SYSKEYUP:
+            {
+                u32  VKCode  = (u32)Message.wParam;
+                bool WasDown = ((Message.lParam & (1 << 30)) != 0);
+                bool IsDown  = ((Message.lParam & (1 << 31)) == 0);
 
-        default:
-        {
-            TranslateMessage(&Message);
-            DispatchMessageA(&Message);
-        } break;
+                if (WasDown != IsDown && VKCode < KEYBOARD_KEY_COUNT)
+                {
+                    Win32ProcessKeyboardMessage(&Kbd->Buttons[VKCode], IsDown);
+                }
+            } break;*/
 
+            case WM_QUIT:
+            {
+                return false;
+            } break;
         }
     }
 
@@ -398,15 +392,19 @@ int WINAPI WinMain(HINSTANCE Instance, HINSTANCE PreviousInstance, LPSTR Command
     transient_allocator Allocator = InitializeTransientAllocator(Megabytes(500));
     game_state          GameState = {0};
 
-    game_input Input = {0};
+    game_input Input = {};
     Input.DtForFrame = 0.006f;
 
+    // NOTE: Still unsure how we read inputs.
+    game_controller_input2 Input2 = {};
+
     u32 Noob = LoadStaticMeshFromDisk(nullptr, &Platform, &Allocator);
+
     UNUSED(Noob);
 
     for (;;)
     {
-        if(!Win32ProcessMessages(&Input.Controller)) break;
+        if(!Win32ProcessMessages(&Input.Controller, &Input2)) break;
 
         // WARN: Move this in the update code?
         RECT Rect;
@@ -426,5 +424,7 @@ int WINAPI WinMain(HINSTANCE Instance, HINSTANCE PreviousInstance, LPSTR Command
                 Sleep(10);
             }
         }
+
+        Input.Controller.RecordedCharacters = 0;
     }
 }

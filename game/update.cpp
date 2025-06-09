@@ -19,12 +19,15 @@ UpdateGameAndRender(game_state *GameState, game_controller_input *Input,
                     transient_allocator *Allocator, platform_context *Platform,
                     f32 DeltaTime)
 {
+    UNUSED(DeltaTime);
+    UNUSED(Input);
+
     camera         *Camera    = &GameState->Camera;
     frame_context  *Frame     = &GameState->Frame;
     player_actions *Actions   = &GameState->Actions;
     jani_context   *UIContext = &GameState->UIContext;
 
-    UpdateCamera(Camera, Input, Platform, DeltaTime); 
+    UpdateCamera(Camera, Platform); 
 
     BeginFrame(Camera, Frame, Platform, Allocator);
 
@@ -32,7 +35,7 @@ UpdateGameAndRender(game_state *GameState, game_controller_input *Input,
     RenderUI(UIContext);
 #endif
 
-    UpdatePlayerActions(Actions);
+    UpdatePlayerActions(Actions, Input);
     RenderGame(Frame);
 
     EndFrame(Platform->DeviceContext);

@@ -50,27 +50,45 @@ typedef struct
     u32  HalfTransitionCount;
 } game_button_state;
 
+enum { KEYBOARD_KEY_COUNT          = 256 };
+enum { KEYBOARD_EVENT_BUFFER_COUNT = 512 };
+
+struct keyboard_event
+{
+    u8   VKCode;
+    bool IsDown;
+};
+
+typedef struct
+{
+    u8  CharBuffer[KEYBOARD_EVENT_BUFFER_COUNT];
+    u32 RecordedCharacters;
+    u32 EventHead;
+    u32 EventTail;
+
+    i32  MouseX, MouseY, MouseZ;
+    game_button_state MouseButtons[5];
+} game_controller_input;
+
+#define MOVE_INPUT_HEAD_TO_NEXT(I) (I->EventHead + 1) % KEYBOARD_EVENT_BUFFER_COUNT
+#define GET_LAST_WRITTEN_INDEX(I)  (I->EventHead + (KEYBOARD_EVENT_BUFFER_COUNT - 1)) % KEYBOARD_EVENT_BUFFER_COUNT
+
 
 typedef struct
 {
     union
     {
-        game_button_state Buttons[6];
+        game_button_state Buttons[1];
 
         struct
         {
-            game_button_state CameraForward;
-            game_button_state CameraBackward;
-            game_button_state CameraRight;
-            game_button_state CameraLeft;
-            game_button_state CameraUp;
-            game_button_state CameraDown;
+            game_button_state Dummy;
         } Actions;
     };
 
     i32 MouseX, MouseY, MouseZ;
     game_button_state MouseButtons[5];
-} game_controller_input;
+} game_controller_input2;
 
 typedef struct
 {

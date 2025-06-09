@@ -1,5 +1,3 @@
-// NOTE: All player interaction is done through here
-
 struct player
 {
     f32 Health;
@@ -57,12 +55,10 @@ struct player_actions
 // completed do the action. So how do I represent a word. It's length, completed count,
 // well the actual word. They must have a length.
 internal void
-UpdatePlayerActions(player_actions *Actions)
+UpdatePlayerActions(player_actions *Actions, game_controller_input *Input)
 {
     if(!Actions->Initialized)
     {
-        // When we have the system, we just load the words here. For now let's hardcode
-        // apple as the first word for the PLAYER_ACTION_ATTACK.
 
         const char* TestWord = "apple";
         memcpy(Actions->WordQueue[PLAYER_ACTION_ATTACK].Words[0].Word,
@@ -78,22 +74,20 @@ UpdatePlayerActions(player_actions *Actions)
         word_queue  *Queue  = Actions->WordQueue + Type;
         action_word *Action = Queue->Words + Queue->CurrentWordIndex;
 
-        const u32  InputBufferSize               = 6;
-        const char InputBuffer[InputBufferSize]  = "apple";
-        for(u32 InputIndex = 0; InputIndex < InputBufferSize; InputIndex++)
+        u32 InputIndex = GET_LAST_WRITTEN_INDEX(Input);
+        for(u32 Index = 0; Index < Input->RecordedCharacters; Index++)
         {
-            if(InputBuffer[InputIndex] == Action->Word[Action->WordAt])
+            if(Input->CharBuffer[InputIndex] == Action->Word[Action->WordAt])
             {
                 PrintDebug("Correct letter typed\n");
-
-                // Here you'd do the work to update whatever visuals we need or
-                // sound or whatever.
 
                 ++Action->WordAt;
                 if(Action->WordAt == Action->WordSize)
                 {
                     PrintDebug("WORD COMPLETED\n");
                 }
+
+                InputIndex = MOVE_INPUT_HEAD_TO_NEXT(Input);
             }
             else
             {
